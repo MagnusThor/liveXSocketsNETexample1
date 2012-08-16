@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>live.xsockets.net | Example 1</title>
+    <script src="http://live.xsockets.net/scripts/jquery-1.7.2.min.js" type="text/javascript"></script>
+    <script src="http://live.xsockets.net/Scripts/jXSockets.1.0.6.beta.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var ws;
+
+        var settings = {
+            apikey: 'e8c17cd7-ef8b-4870-96eb-b0181ec225af' // Replace with your API-Key (get one from http://live.xsockets.net' )
+        };
+        $(function () {
+            /// Cretate a WebSocket 
+            var ws = new XSockets.WebSocket("ws://xsocketslive.cloudapp.net:10101/XSockets.Live.Realtime.API", "XSockets.Live.Realtime.API", settings);
+
+            // Subscribe to the "open" event, fires when you are connected.
+            ws.bind(XSockets.Events.open, function (data) {
+
+                // Subscribe to 'foo' ( Tell the sever that you want to subscribe to subject 'foo' )
+                ws.bind("foo", function (msg) {
+                    console.log("foo", msg);
+                    $("<p>").text(msg.Says).prependTo("#message"); // Just add a <p> to display..
+                });
+
+                //  note:  unsubscribe?  use the .unbind(subject) i.e ws.unbind("foo")
+                // Subscribe to 'bar' just "once" ( Tell the sever that you wan to subscribe to subject 'bar' once...  )
+                ws.one("bar", function (msg) {
+                    console.log("bar", msg);
+                    console.log(msg); // I'm lazy  so i wont do anything here / Sideny
+                });
+            });
+
+            // When a click on a button ..
+            $("button").on("click", function () {
+
+                // Create a "message"  (json )
+                var msg = {
+                    Name: "Sidney Kwanza",
+                    Says: "live well and prosper..",
+                    Age: 38,
+                    Skills: ["JS", "C#", "CSS", "Mountaineering", "Drinking beer"]
+                };
+
+                ws.trigger("foo", msg);
+
+                var anotherMsg = {
+                    Text: "As i will be triggered as bar i will only be sent once...."
+                };
+
+                ws.trigger("bar", anotherMsg);
+            });
+
+        });
+    </script>
+
+</head>
+    <body>
+        <p>Tip: Open your JavaScript console</p>
+        <button>Foo</button>
+        <div id="message"></div>
+    </body>
+</html>
